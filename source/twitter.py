@@ -89,12 +89,17 @@ def extract_dictionary(infile):
     --------------------
         word_list -- dictionary, (key, value) pairs are (word, index)
     """
-    
     word_list = {}
     with open(infile, 'rU') as fid :
         ### ========== TODO : START ========== ###
         # part 1a: process each line to populate word_list
-        pass
+        counter = 0
+        for  line in fid:
+	        words = extract_words(line)
+	        for word in words:
+	        	if not word in word_list:
+	        		word_list[word] = counter
+	        		counter +=1
         ### ========== TODO : END ========== ###
 
     return word_list
@@ -125,7 +130,14 @@ def extract_feature_vectors(infile, word_list):
     with open(infile, 'rU') as fid :
         ### ========== TODO : START ========== ###
         # part 1b: process each line to populate feature_matrix
-        pass
+        counter = 0
+        for line in fid:
+        	words = extract_words(line)
+        	for word in words:
+        		if word in word_list:
+        			feature_matrix[counter, word_list[word]] = 1
+        	counter += 1
+
         ### ========== TODO : END ========== ###
         
     return feature_matrix
@@ -196,6 +208,26 @@ def performance(y_true, y_pred, metric="accuracy"):
     
     ### ========== TODO : START ========== ###
     # part 2a: compute classifier performance
+    #C_00 = TN, C_10 = FN, C_11 = TP, C_01 = FP
+    cm = metrics.confusion_matrix(y_true, y_label)
+    if metric == "accuracy":
+    	return metrics.accuracy_score(y_true, y_label)
+
+    elif metric == "f1_score":
+    	return metrics.f1_score(y_true, y_label)
+
+    elif metric == "auroc":
+    	return metrics.roc_auc_score(y_true, y_pred)
+
+    elif metric == "precision":
+    	return cm[1,1] / float(cm[1,1]+ cm[0,1])
+
+    elif metric == "sensitivity":
+    	return cm[1,1] / float(cm[1,1] + cm[1,0])
+
+    elif metric == "specificity":
+    	return cm[0,0] / float(cm[0,0] + cm[0,1])
+
     return 0
     ### ========== TODO : END ========== ###
 
@@ -284,7 +316,15 @@ def select_param_linear(X, y, kf, metric="accuracy"):
     
     ### ========== TODO : START ========== ###
     # part 2c: select optimal hyperparameter using cross-validation
-    return 1.0
+    bestC = None 
+    bestPerf = 0
+    for c in C_range:
+    	clf = SVC(C=c, kernel="linear")
+    	perf = cv_performance(clf, X, y, kf, metric)
+    	if perf > bestPerf:
+    		bestPerf = perf
+    		bestC = c
+    return bestC
     ### ========== TODO : END ========== ###
 
 
@@ -374,8 +414,19 @@ def main() :
     test_performance()
     
     # part 2b: create stratified folds (5-fold CV)
+    kf = StratifiedKFold(y_train, 5)
     
     # part 2d: for each metric, select optimal hyperparameter for linear-kernel SVM using CV
+    print "Performance across models and C values is..."
+    perf = []
+    for c in 10.0 ** np.arange(-3, 3):
+    	innerPerf = []
+    	for metric in metric_list:
+    		clf = SVC(C=c, kernel="linear")
+    		innerPerf.append(round(cv_performance(clf, X, y, kf, metric), 4))
+    	perf.append(innerPerf)
+    	print innerPerf
+    print np.max(np.asarray(perf), axis=0)
     
     # part 3c: for each metric, select optimal hyperparameter for RBF-SVM using CV
     

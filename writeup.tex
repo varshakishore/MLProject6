@@ -1,0 +1,50 @@
+\documentclass[11pt]{article}
+\usepackage[margin=1in]{geometry}
+\usepackage{enumerate}
+\usepackage{framed}
+\usepackage{multirow}
+\usepackage{multicol}
+\usepackage{bm}
+\usepackage{amssymb}
+\usepackage{amsmath}
+\usepackage{amsthm}
+\usepackage{multicol}
+\usepackage{graphicx}
+\setlength{\columnsep}{1in}
+\begin{document}
+
+\newcommand{\Name}[1]{\noindent \textbf{Name:} #1 \\}
+\newcommand{\pderiv}[2]{\frac{\partial #1}{\partial #2}}
+\newcommand{\psderiv}[3]{\frac{\partial^2 #1}{\partial #2 \partial #3}}
+
+\begin{center}
+	\bf
+	Machine Learning \\
+	Computer Science 158 \\
+	Spring 2017 \\
+	\rm
+	Project 6\\
+	Due: March 8 at 11:59 PM \\
+\end{center}
+\noindent \textbf{Name: Varsha Kishore and Savannah Baron} \\
+\begin{enumerate}[(2)]
+\item Hyperparameter Selection
+\begin{enumerate}[(b)]
+\item As we discussed in class, when training using accuracy as the measure, 
+the most accurate approach can be to classify everything as the majority. So, if we 
+keep the proportion the same no one fold will have an advantage over the other while
+training in terms of ratio of majority to minority. 
+\item Code complete!
+\item 
+[0.6554, 0.7918, 0.8649, 0.6554, 1.0, 0.0]
+[0.7749, 0.8454, 0.8654, 0.7672, 0.9427, 0.4559]
+[0.8248, 0.8715, 0.8981, 0.8393, 0.9073, 0.668]
+[0.8445, 0.8832, 0.9101, 0.8692, 0.8991, 0.7408]
+[0.8391, 0.8796, 0.9086, 0.8623, 0.8991, 0.7252]
+[0.8391, 0.8796, 0.9086, 0.8623, 0.8991, 0.7252]
+MAX: [ 0.8445  0.8832  0.9101  0.8692  1.      0.7408]
+\end{enumerate}
+\end{enumerate}
+
+
+\end{document}
