@@ -352,7 +352,22 @@ def select_param_rbf(X, y, kf, metric="accuracy"):
     
     ### ========== TODO : START ========== ###
     # part 3b: create grid, then select optimal hyperparameters using cross-validation
-    return 0.0, 1.0
+    CList = [0.001, 0.01, 0.1, 1.0, 10.0, 100.0, 1000.0, 10000.0, 1000000.0]
+    gammaList = [0.001, 0.01, 0.1, 1.0, 10.0, 100.0, 1000.0, 10000.0, 1000000.0]
+
+    bestC = 0
+    bestGamma = 0
+    bestPerf = 0
+    for c in CList:
+        for gamma in gammaList:
+            clf = SVC(C=c, gamma=gamma, kernel="rbf")
+            perf = cv_performance(clf, X, y, kf, metric)
+            if perf > bestPerf:
+                bestPerf = perf
+                bestC = c
+                bestGamma = gamma
+    print "Performance for " + str(metric) + " is " + str(bestPerf)
+    return bestGamma, bestC
     ### ========== TODO : END ========== ###
 
 
@@ -382,7 +397,23 @@ def performance_CI(clf, X, y, metric="accuracy"):
     ### ========== TODO : START ========== ###
     # part 4b: use bootstrapping to compute 95% confidence interval
     # hint: use np.random.randint(...)
-    return score, 0.0, 1.0
+    n, d = X.shape
+
+    perf = []
+
+    for t in range(1000):
+        indices = np.random.randint(0, n, size = n)
+
+        X_bootstrap = X[indices]
+        y_bootstrap = y[indices]
+
+        y_pred = clf.decision_function(X_bootstrap)
+        perf.append(performance(y_bootstrap, y_pred, metric=metric))
+
+    lower = np.percentile(perf, 2.5)
+    upper = np.percentile(perf, 97.5)
+
+    return score, lower, upper
     ### ========== TODO : END ========== ###
 
 
@@ -423,16 +454,35 @@ def main() :
     	innerPerf = []
     	for metric in metric_list:
     		clf = SVC(C=c, kernel="linear")
-    		innerPerf.append(round(cv_performance(clf, X, y, kf, metric), 4))
+    		innerPerf.append(round(cv_performance(clf, X_train, y_train, kf, metric), 4))
     	perf.append(innerPerf)
     	print innerPerf
     print np.max(np.asarray(perf), axis=0)
     
     # part 3c: for each metric, select optimal hyperparameter for RBF-SVM using CV
+    print "Performance across models and C values is..."
+    # perf = []
+    # for metric in metric_list:
+    #     gamma, c = select_param_rbf(X_train, y_train, kf, metric=metric)
+    #     print "Metric: " + str(metric) + " gamma: " + str(gamma) + " c " + str(c)
+
     
     # part 4a: train linear- and RBF-kernel SVMs with selected hyperparameters
+    c = 1.
+    linClf = SVC(C=c, kernel="linear")
+    c = 0.01
+    gamma = 100.0
+    rbfClf = SVC(C=c, gamma=gamma, kernel="rbf")
+    linClf.fit(X_train, y_train)
+    rbfClf.fit(X_train, y_train)
     
     # part 4c: use bootstrapping to report performance on test data
+    for metric in metric_list:
+        score1, lower1, upper1 = performance_CI(linClf, X_test, y_test, metric=metric)
+        score2, lower2, upper2 = performance_CI(rbfClf, X_test, y_test, metric=metric)
+        print "Metric: " + str(metric)
+        print "Linear: Score: " + str(score1) + " lower: " + str(lower1) + " upper: " + str(upper1)
+        print "RBF: Score: " + str(score2) + " lower: " + str(lower2) + " upper: " + str(upper2)
     
     ### ========== TODO : END ========== ###
     

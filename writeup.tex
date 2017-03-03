@@ -28,7 +28,7 @@
 \end{center}
 \noindent \textbf{Name: Varsha Kishore and Savannah Baron} \\
 \begin{enumerate}[(2)]
-\item Hyperparameter Selection
+\item Hyperparameter Selection for Linear SVM
 \begin{enumerate}[(b)]
 \item As we discussed in class, when training using accuracy as the measure, 
 the most accurate approach can be to classify everything as the majority. So, if we 
@@ -36,15 +36,66 @@ keep the proportion the same no one fold will have an advantage over the other w
 training in terms of ratio of majority to minority. 
 \item Code complete!
 \item 
-[0.6554, 0.7918, 0.8649, 0.6554, 1.0, 0.0]
-[0.7749, 0.8454, 0.8654, 0.7672, 0.9427, 0.4559]
-[0.8248, 0.8715, 0.8981, 0.8393, 0.9073, 0.668]
-[0.8445, 0.8832, 0.9101, 0.8692, 0.8991, 0.7408]
-[0.8391, 0.8796, 0.9086, 0.8623, 0.8991, 0.7252]
-[0.8391, 0.8796, 0.9086, 0.8623, 0.8991, 0.7252]
-MAX: [ 0.8445  0.8832  0.9101  0.8692  1.      0.7408]
+\begin{tabular}{| l | c | c | c | c | c | c |}
+  \hline			
+  $10^{-3}$ & 0.6554 & 0.7918 & 0.8649 & 0.6554 & 1.0 & 0.0 \\
+  $10^{-2}$ & 0.7749 & 0.8454 & 0.8654 & 0.7672 & 0.9427 & 0.4559  \\
+  $10^{-1}$ &  0.8248 & 0.8715 & 0.8981 & 0.8393 & 0.9073 & 0.668 \\
+  $10^{0}$ &  0.8445 & 0.8832 & 0.9101 & 0.8692 & 0.8991 & 0.7408 \\
+  $10^{1}$ &  0.8391 & 0.8796 & 0.9086 & 0.8623 & 0.8991 & 0.7252 \\
+  $10^{2}$ &  0.8391 & 0.8796 & 0.9086 & 0.8623 & 0.8991 & 0.7252 \\
+  Best & 0.8445 & 0.8832 & 0.9101 & 0.8692 & 1. & 0.7408 \\
+  \hline  
+\end{tabular}
+
+\end{enumerate}
+\item Hyperparameter Selection for RBF Kernel SVM
+\begin{enumerate}[(a)]
+\item $\gamma = \frac{1}{2\sigma^2}$. When $\sigma^2$ increases, regularization increases. So, as $\gamma$
+increases, regularization decreases. This means that if we are in high bias, increasing $\gamma$ will 
+increase generalization. If we are in high variance, decreasing $\gamma$ will increase generalization. 
+\item We chose $C$ to range from 0.001 to $10^6$. We used high $C$ values for low regularization, and 
+low values for high regularization, in order to cover all possibilities that our model might need. We chose
+the same range for gamma for the same reasons. 
+\item TODO: Fill in table. How does it vary with the hyperparameters?
+
+\begin{tabular}{| l | c | c | c |}
+\hline
+Metric & Score & $\gamma$ & $c$ \\
+Accuracy & 0.848140824136 & 0.01 & 100.0 \\
+F1-score & 0.886744958855 & 0.01 & 100.0 \\
+Auroc & 0.913971433582 & 0.01 & 100.0 \\
+Precision & 0.868381513773 & 0.01 & 100.0 \\
+Sensitivy & 1.0 & 0.001 & 0.001 \\
+Specificity & 0.735897435897 & 0.01 & 100.0 \\
+\hline
+\end{tabular}
+\end{enumerate}
+\item Test Set Performance
+\begin{enumerate}[(a)]
+\item TODO: Explain choose
+\item Code complete!
+\item Metric: accuracy
+Linear: Score: 0.757142857143 lower: 0.657142857143 upper: 0.843214285714
+RBF: Score: 0.728571428571 lower: 0.628571428571 upper: 0.828571428571
+Metric: f1\_score
+Linear: Score: 0.824742268041 lower: 0.736811857229 upper: 0.901960784314
+RBF: Score: 0.842975206612 lower: 0.761061946903 upper: 0.914728682171
+Metric: auroc
+Linear: Score: 0.810113519092 lower: 0.690991666667 upper: 0.915655059193
+RBF: Score: 0.5 lower: 0.5 upper: 0.5
+Metric: precision
+Linear: Score: 0.869565217391 lower: 0.767404750124 upper: 0.957446808511
+RBF: Score: 0.728571428571 lower: 0.628571428571 upper: 0.828928571429
+Metric: sensitivity
+Linear: Score: 0.78431372549 lower: 0.666666666667 upper: 0.88
+RBF: Score: 1.0 lower: 1.0 upper: 1.0
+Metric: specificity
+Linear: Score: 0.684210526316 lower: 0.461363636364 upper: 0.888888888889
+RBF: Score: 0.0 lower: 0.0 upper: 0.0
 \end{enumerate}
 \end{enumerate}
+
 
 
 \end{document}
