@@ -6,6 +6,7 @@ Description : Twitter
 """
 
 from string import punctuation
+from matplotlib.pylab import *
 
 import numpy as np
 
@@ -13,6 +14,8 @@ from sklearn.svm import SVC
 from sklearn.cross_validation import StratifiedKFold
 from sklearn import metrics
 from sklearn.utils import shuffle
+from sklearn.feature_extraction.text import CountVectorizer
+
 
 ######################################################################
 # functions -- input/output
@@ -450,14 +453,14 @@ def main() :
     # part 2d: for each metric, select optimal hyperparameter for linear-kernel SVM using CV
     print "Performance across models and C values is..."
     perf = []
-    for c in 10.0 ** np.arange(-3, 3):
-    	innerPerf = []
-    	for metric in metric_list:
-    		clf = SVC(C=c, kernel="linear")
-    		innerPerf.append(round(cv_performance(clf, X_train, y_train, kf, metric), 4))
-    	perf.append(innerPerf)
-    	print innerPerf
-    print np.max(np.asarray(perf), axis=0)
+    # for c in 10.0 ** np.arange(-3, 3):
+    # 	innerPerf = []
+    # 	for metric in metric_list:
+    # 		clf = SVC(C=c, kernel="linear")
+    # 		innerPerf.append(round(cv_performance(clf, X_train, y_train, kf, metric), 4))
+    # 	perf.append(innerPerf)
+    # 	print innerPerf
+    # print np.max(np.asarray(perf), axis=0)
     
     # part 3c: for each metric, select optimal hyperparameter for RBF-SVM using CV
     print "Performance across models and C values is..."
@@ -470,31 +473,67 @@ def main() :
     # part 4a: train linear- and RBF-kernel SVMs with selected hyperparameters
     c = 1.
     linClf = SVC(C=c, kernel="linear")
-    c = 0.01
-    gamma = 100.0
+    c = 100.0
+    gamma = 0.01
     rbfClf = SVC(C=c, gamma=gamma, kernel="rbf")
     linClf.fit(X_train, y_train)
     rbfClf.fit(X_train, y_train)
     
     # part 4c: use bootstrapping to report performance on test data
-    for metric in metric_list:
-        score1, lower1, upper1 = performance_CI(linClf, X_test, y_test, metric=metric)
-        score2, lower2, upper2 = performance_CI(rbfClf, X_test, y_test, metric=metric)
-        print "Metric: " + str(metric)
-        print "Linear: Score: " + str(score1) + " lower: " + str(lower1) + " upper: " + str(upper1)
-        print "RBF: Score: " + str(score2) + " lower: " + str(lower2) + " upper: " + str(upper2)
+    # for metric in metric_list:
+    #     score1, lower1, upper1 = performance_CI(linClf, X_test, y_test, metric=metric)
+    #     score2, lower2, upper2 = performance_CI(rbfClf, X_test, y_test, metric=metric)
+    #     print "Metric: " + str(metric)
+    #     print "Linear: Score: " + str(score1) + " lower: " + str(lower1) + " upper: " + str(upper1)
+    #     print "RBF: Score: " + str(score2) + " lower: " + str(lower2) + " upper: " + str(upper2)
     
     ### ========== TODO : END ========== ###
     
     ### ========== TODO : START ========== ###
     # Twitter contest
     # uncomment out the following, and be sure to change the filename
-    """
+
+    # Learning curve plot
+    # n, d = np.shape(X_train)
+    # perf = []
+    # perfTrain = []
+    # percentage = []
+    # for i in xrange(10, 81, 10):
+    # 	percentage.append(i)
+    # 	linClf = SVC(C=1, kernel="linear")
+    # 	linClf.fit(X_train[:int((i/100.0)*n)], y_train[:int((i/100.0)*n)])
+    # 	y_true = y_train[int((i/100.0)*n):]
+    # 	y_pred = linClf.decision_function(X_train[int((i/100.0)*n):])
+    # 	perf.append(1-performance(y_true, y_pred, "accuracy"))
+    # 	y_test = y_train[:int((i/100.0)*n)]
+    # 	y_pred = linClf.decision_function(X_train[:int((i/100.0)*n)])
+    # 	perfTrain.append(1-performance(y_test, y_pred, "accuracy"))
+    # matplotlib.pyplot.plot(np.asarray(percentage), np.asarray(perf), 
+    #     c='b', label='Test Error')
+    # matplotlib.pyplot.plot(np.asarray(percentage), np.asarray(perfTrain), 
+    #     c='g', label='Train Error')
+    # plt.autoscale(enable=True)
+    # plt.xlabel('percentage data')
+    # plt.ylabel('error')
+    # plt.legend(loc=1,prop={'size':8})
+    # plt.show()
+
     X_held = extract_feature_vectors('../data/held_out_tweets.txt', dictionary)
+    clf = SVC(C=100.0, gamma=0.01, kernel="rbf")
+    cv = CountVectorizer(stop_words = 'english', max_features = 250)
+    tweetList = [] 
+    
+    with open('../data/tweets.txt', 'rU') as fid :
+        for  line in fid:
+	        tweetList.append(line)
+    cv.fit(tweetList)
+    dtm = cv.transform(tweetList)
+    dtm_train, dtm_test = dtm[:560], dtm[560:]
+    y_train, y_test = y[:560], y[560:]
+    kf = StratifiedKFold(y_train, 5)
+    print "performance", cv_performance(clf, dtm_train, y_train, kf, metric='accuracy')
     # your code here
-    # y_pred = best_clf.decision_function(X_held)
-    write_label_answer(y_pred, '../data/yjw_twitter.txt')
-    """
+    #write_label_answer(y_pred, '../data/yjw_twitter.txt')
     ### ========== TODO : END ========== ###
     
 
