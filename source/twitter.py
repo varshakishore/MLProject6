@@ -14,7 +14,7 @@ from sklearn.svm import SVC
 from sklearn.cross_validation import StratifiedKFold
 from sklearn import metrics
 from sklearn.utils import shuffle
-from sklearn.feature_extraction.text import CountVectorizer
+from sklearn.feature_extraction.text import CountVectorizer, TfidfTransformer
 
 
 ######################################################################
@@ -406,59 +406,62 @@ def shorterParamSelect(metric_list):
             tweetList.append(line)
     yBase = read_vector_file('../data/labels.txt')
 
-    CList = [10.0, 100.0, 1000.0, 10000.0, 100000.0]
-    gammaList = [0.00001, 0.0001, 0.001, 0.01]
+    CList = [10.0, 100.0, 1000.0, 10000.0]
+    gammaList = [0.0001, 0.001, 0.01]
 
-    cv = CountVectorizer(max_features=500)
-    cv.fit(tweetList)
-    dtm = cv.transform(tweetList)
-    dtm, y = shuffle(dtm, yBase, random_state=0)
-    dtm_train, dtm_test = dtm[:560], dtm[560:]
-    y_train, y_test = y[:560], y[560:]
-    kf = StratifiedKFold(y_train, 5)
-    clf = SVC(C=10., gamma=0.001, kernel="rbf")
-    clf.fit(dtm_train, y_train)
-    for metric in metric_list:
-        print "Metric: " + metric
-        print cv_performance(clf, dtm_train, y_train, kf, metric=metric)
-        print performance_CI(clf, dtm_test, y_test, metric=metric)
+    # cv = CountVectorizer(max_features=500)
+    # cv.fit(tweetList)
+    # dtm = cv.transform(tweetList)
+    # dtm, y = shuffle(dtm, yBase, random_state=0)
+    # dtm_train, dtm_test = dtm[:560], dtm[560:]
+    # y_train, y_test = y[:560], y[560:]
+    # kf = StratifiedKFold(y_train, 5)
+    # clf = SVC(C=10., gamma=0.001, kernel="rbf")
+    # clf.fit(dtm_train, y_train)
+    # for metric in metric_list:
+    #     print "Metric: " + metric
+    #     print cv_performance(clf, dtm_train, y_train, kf, metric=metric)
+    #     print performance_CI(clf, dtm_test, y_test, metric=metric)
 
-    # bestC = 0
-    # bestGamma = 0
-    # bestStop = None
-    # bestFeat = 0
-    # bestPerf = 0
-    # bestKernel = None
-    # for numFeat in range(500, 1500, 100)+[None]:
-    #     for stopWord in [None]:
-    #         for c in CList:
-    #             for gamma in gammaList:
-    #                 for kernelType in ["linear", "rbf"]:
-    #                     cv = CountVectorizer(max_features=numFeat, stop_words=stopWord)
-    #                     cv.fit(tweetList)
-    #                     dtm = cv.transform(tweetList)
-    #                     dtm, y = shuffle(dtm, yBase, random_state=0)
-    #                     dtm_train, dtm_test = dtm[:560], dtm[560:]
-    #                     y_train, y_test = y[:560], y[560:]
-    #                     kf = StratifiedKFold(y_train, 5)
-    #                     clf = SVC(C=c, gamma=gamma, kernel=kernelType)
-    #                     clf.fit(dtm_train, y_train)
-    #                     perf, _, _ = performance_CI(clf, dtm_test, y_test, metric="accuracy")
-    #                     if perf > bestPerf:
-    #                         bestPerf = perf
-    #                         bestC = c
-    #                         bestStop = stopWord
-    #                         bestFeat = numFeat
-    #                         bestGamma = gamma
-    #                         bestKernel = kernelType
-    #                         print "Perf: " + str(bestPerf)
-    #                         print "C: " + str(bestC)
-    #                         print "Gamma: " + str(bestGamma)
-    #                         print "Stop: " + str(bestStop)
-    #                         print "Feat: " + str(bestFeat)
-    #                         print "Kernel: " + str(bestKernel)
-    # print "Performance for " + str(metric) + " is " + str(bestPerf)
-    # return bestGamma, bestC
+    bestC = 0
+    bestGamma = 0
+    bestFeat = 0
+    bestPerf = 0
+    bestKernel = None
+    bestTransform = False
+    for numFeat in range(500, 1500, 100):
+            for c in CList:
+                for gamma in gammaList:
+                    for kernelType in ["linear", "rbf"]:
+                        for useTFIDF in [True, False]:
+                            cv = CountVectorizer(max_features=numFeat)
+                            cv.fit(tweetList)
+                            dtm = cv.transform(tweetList)
+                            if useTFIDF:
+                                tfidf = TfidfTransformer()
+                                dtm = tfidf.fit_transform(dtm)
+                            dtm, y = shuffle(dtm, yBase, random_state=0)
+                            dtm_train, dtm_test = dtm[:560], dtm[560:]
+                            y_train, y_test = y[:560], y[560:]
+                            kf = StratifiedKFold(y_train, 5)
+                            clf = SVC(C=c, gamma=gamma, kernel=kernelType)
+                            clf.fit(dtm_train, y_train)
+                            perf, _, _ = performance_CI(clf, dtm_test, y_test, metric="accuracy")
+                            if perf > bestPerf:
+                                bestPerf = perf
+                                bestC = c
+                                bestFeat = numFeat
+                                bestGamma = gamma
+                                bestKernel = kernelType
+                                bestTransform = useTFIDF
+                                print "Perf: " + str(bestPerf)
+                                print "C: " + str(bestC)
+                                print "Gamma: " + str(bestGamma)
+                                print "Feat: " + str(bestFeat)
+                                print "Kernel: " + str(bestKernel)
+                                print "Transform: " + str(bestTransform)
+    print "Performance for " + str(metric) + " is " + str(bestPerf)
+    return bestGamma, bestC
 
 
 def performance_CI(clf, X, y, metric="accuracy"):
