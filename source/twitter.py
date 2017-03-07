@@ -373,6 +373,93 @@ def select_param_rbf(X, y, kf, metric="accuracy"):
     return bestGamma, bestC
     ### ========== TODO : END ========== ###
 
+def shorterParamSelect(metric_list):
+    """
+    Sweeps different settings for the hyperparameters of an RBF-kernel SVM,
+    calculating the k-fold CV performance for each setting, then selecting the
+    hyperparameters that 'maximize' the average k-fold CV performance.
+    
+    Parameters
+    --------------------
+        X       -- numpy array of shape (n,d), feature vectors
+                     n = number of examples
+                     d = number of features
+        y       -- numpy array of shape (n,), binary labels {1,-1}
+        kf     -- cross_validation.KFold or cross_validation.StratifiedKFold
+        metric  -- string, option used to select performance measure
+    
+    Returns
+    --------------------
+        gamma, C -- tuple of floats, optimal parameter values for an RBF-kernel SVM
+    """
+    metric = "accuracy"
+    
+    print 'RBF SVM Hyperparameter Selection based on ' + str(metric) + ':'
+    
+    ### ========== TODO : START ========== ###
+    # part 3b: create grid, then select optimal hyperparameters using cross-validation
+
+    tweetList = [] 
+                        
+    with open('../data/tweets.txt', 'rU') as fid :
+        for  line in fid:
+            tweetList.append(line)
+    yBase = read_vector_file('../data/labels.txt')
+
+    CList = [10.0, 100.0, 1000.0, 10000.0, 100000.0]
+    gammaList = [0.00001, 0.0001, 0.001, 0.01]
+
+    cv = CountVectorizer(max_features=500)
+    cv.fit(tweetList)
+    dtm = cv.transform(tweetList)
+    dtm, y = shuffle(dtm, yBase, random_state=0)
+    dtm_train, dtm_test = dtm[:560], dtm[560:]
+    y_train, y_test = y[:560], y[560:]
+    kf = StratifiedKFold(y_train, 5)
+    clf = SVC(C=10., gamma=0.001, kernel="rbf")
+    clf.fit(dtm_train, y_train)
+    for metric in metric_list:
+        print "Metric: " + metric
+        print cv_performance(clf, dtm_train, y_train, kf, metric=metric)
+        print performance_CI(clf, dtm_test, y_test, metric=metric)
+
+    # bestC = 0
+    # bestGamma = 0
+    # bestStop = None
+    # bestFeat = 0
+    # bestPerf = 0
+    # bestKernel = None
+    # for numFeat in range(500, 1500, 100)+[None]:
+    #     for stopWord in [None]:
+    #         for c in CList:
+    #             for gamma in gammaList:
+    #                 for kernelType in ["linear", "rbf"]:
+    #                     cv = CountVectorizer(max_features=numFeat, stop_words=stopWord)
+    #                     cv.fit(tweetList)
+    #                     dtm = cv.transform(tweetList)
+    #                     dtm, y = shuffle(dtm, yBase, random_state=0)
+    #                     dtm_train, dtm_test = dtm[:560], dtm[560:]
+    #                     y_train, y_test = y[:560], y[560:]
+    #                     kf = StratifiedKFold(y_train, 5)
+    #                     clf = SVC(C=c, gamma=gamma, kernel=kernelType)
+    #                     clf.fit(dtm_train, y_train)
+    #                     perf, _, _ = performance_CI(clf, dtm_test, y_test, metric="accuracy")
+    #                     if perf > bestPerf:
+    #                         bestPerf = perf
+    #                         bestC = c
+    #                         bestStop = stopWord
+    #                         bestFeat = numFeat
+    #                         bestGamma = gamma
+    #                         bestKernel = kernelType
+    #                         print "Perf: " + str(bestPerf)
+    #                         print "C: " + str(bestC)
+    #                         print "Gamma: " + str(bestGamma)
+    #                         print "Stop: " + str(bestStop)
+    #                         print "Feat: " + str(bestFeat)
+    #                         print "Kernel: " + str(bestKernel)
+    # print "Performance for " + str(metric) + " is " + str(bestPerf)
+    # return bestGamma, bestC
+
 
 def performance_CI(clf, X, y, metric="accuracy"):
     """
@@ -425,6 +512,9 @@ def performance_CI(clf, X, y, metric="accuracy"):
 ######################################################################
  
 def main() :
+    metric_list = ["accuracy", "f1_score", "auroc", "precision", "sensitivity", "specificity"]
+    shorterParamSelect(metric_list)
+    exit()
     # read the tweets and its labels
     dictionary = extract_dictionary('../data/tweets.txt')
     test_extract_dictionary(dictionary)
@@ -519,8 +609,8 @@ def main() :
     # plt.show()
 
     X_held = extract_feature_vectors('../data/held_out_tweets.txt', dictionary)
-    clf = SVC(C=100.0, gamma=0.01, kernel="rbf")
-    cv = CountVectorizer(stop_words = 'english', max_features = 250)
+    clf = SVC(C=100.0, gamma=0.01, kernel="linear")
+    cv = CountVectorizer(max_features=500)
     tweetList = [] 
     
     with open('../data/tweets.txt', 'rU') as fid :
@@ -528,9 +618,12 @@ def main() :
 	        tweetList.append(line)
     cv.fit(tweetList)
     dtm = cv.transform(tweetList)
+    y = read_vector_file('../data/labels.txt')
+    dtm, y = shuffle(dtm, y, random_state=0)
     dtm_train, dtm_test = dtm[:560], dtm[560:]
     y_train, y_test = y[:560], y[560:]
     kf = StratifiedKFold(y_train, 5)
+
     print "performance", cv_performance(clf, dtm_train, y_train, kf, metric='accuracy')
     # your code here
     #write_label_answer(y_pred, '../data/yjw_twitter.txt')
