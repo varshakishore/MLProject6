@@ -27,24 +27,30 @@
 	Due: March 8 at 11:59 PM \\
 \end{center}
 \noindent \textbf{Name: Varsha Kishore and Savannah Baron} \\
-\begin{enumerate}[(2)]
+\begin{enumerate}
+\item Feature Extraction \\
+Code complete!
 \item Hyperparameter Selection for Linear SVM
-\begin{enumerate}[(b)]
+\begin{enumerate}
+\item Code complete!
 \item As we discussed in class, when training using accuracy as the measure, 
 the most accurate approach can be to classify everything as the majority. So, if we 
 keep the proportion the same no one fold will have an advantage over the other while
 training in terms of ratio of majority to minority. 
 \item Code complete!
-\item 
+\item Table 1- best setting for $C$ using Linear SVM:\\
 \begin{tabular}{| l | c | c | c | c | c | c |}
-  \hline			
+  \hline		
+  C & accuracy & F1\-score & AUROC & precision & sensitivity & specificity \\
+  \hline
   $10^{-3}$ & 0.6554 & 0.7918 & 0.8649 & 0.6554 & 1.0 & 0.0 \\
   $10^{-2}$ & 0.7749 & 0.8454 & 0.8654 & 0.7672 & 0.9427 & 0.4559  \\
   $10^{-1}$ &  0.8248 & 0.8715 & 0.8981 & 0.8393 & 0.9073 & 0.668 \\
   $10^{0}$ &  0.8445 & 0.8832 & 0.9101 & 0.8692 & 0.8991 & 0.7408 \\
   $10^{1}$ &  0.8391 & 0.8796 & 0.9086 & 0.8623 & 0.8991 & 0.7252 \\
   $10^{2}$ &  0.8391 & 0.8796 & 0.9086 & 0.8623 & 0.8991 & 0.7252 \\
-  Best & 0.8445 & 0.8832 & 0.9101 & 0.8692 & 1. & 0.7408 \\
+  \hline
+  Best C & 1 & 1 & 1 & 1 & 0.001 & 1 \\
   \hline  
 \end{tabular}
 
@@ -57,43 +63,46 @@ increase generalization. If we are in high variance, decreasing $\gamma$ will in
 \item We chose $C$ to range from 0.001 to $10^6$. We used high $C$ values for low regularization, and 
 low values for high regularization, in order to cover all possibilities that our model might need. We chose
 the same range for gamma for the same reasons. 
-\item TODO: Fill in table. How does it vary with the hyperparameters?
+\item Table 2- best setting for $C$ and $\gamma$ using RBF SVM: \\
 
 \begin{tabular}{| l | c | c | c |}
 \hline
 Metric & Score & $\gamma$ & $c$ \\
-Accuracy & 0.848140824136 & 0.01 & 100.0 \\
-F1-score & 0.886744958855 & 0.01 & 100.0 \\
-Auroc & 0.913971433582 & 0.01 & 100.0 \\
-Precision & 0.868381513773 & 0.01 & 100.0 \\
-Sensitivy & 1.0 & 0.001 & 0.001 \\
-Specificity & 0.735897435897 & 0.01 & 100.0 \\
+\hline
+Accuracy & 0.8481 & 0.01 & 100.0 \\
+F1-score & 0.8867 & 0.01 & 100.0 \\
+Auroc & 0.9140 & 0.01 & 100.0 \\
+Precision & 0.8684 & 0.01 & 100.0 \\
+Sensitivy & 1.0000 & 0.001 & 0.001 \\
+Specificity & 0.7359 & 0.01 & 100.0 \\
 \hline
 \end{tabular}
 \end{enumerate}
 \item Test Set Performance
 \begin{enumerate}[(a)]
-\item TODO: Explain choose
+\item Using table $1$, we choose $C=1$ for the linear SVM because we can see from the table that the scores for the different metrics are highest when $C=1$ for all metrics except sensitivity. Using table $2$, we choose $C=100$ and $\gamma = 0.01$ for the RBF SVM because we can see from the table that  the best $C$ and best $\gamma$ is $100$ and $0.01$ respectively for all metrics except sensitivity. 
 \item Code complete!
-\item 
+\item Test set performance of classifiers: \\
 \begin{tabular}{| c | c | c | c | c |}
 \hline
 Metric & Type &Score & Lower & Upper \\
-Accuracy & Linear & $0.757142857143$ & $0.657142857143$ & $0.843214285714$ \\
-Accuracy & RBF & $0.757142857143$ & $0.657142857143$ & $0.843214285714$ \\
-f1\_score & Linear & $0.824742268041$ & $0.736811857229$ & $0.901960784314$ \\
-f1\_score & RBF & $0.828282828283$ & $0.739104554865$ & $0.902654867257$ \\
-auroc & Linear & $0.810113519092$ & $0.690991666667$ & $0.915655059193$ \\
-auroc & RBF & $0.820433436533$ & $0.695933820598$ & $0.92120110885$ \\
-precision & Linear & $0.869565217391$ & $0.767404750124$ & $0.957446808511$ \\
-precision & RBF & $0.854166666667$ & $0.755555555556$ & $0.953514799154$ \\
-sensitivity & Linear & $0.78431372549$ & $0.666666666667$ & $0.88$ \\
-sensitivity & RBF & $0.803921568627$ & $0.692307692308$ & $0.907407407407$ \\
-specificity & Linear & $0.684210526316$ & $0.461363636364$ & $0.888888888889$ \\
-specificity & RBF & $0.631578947368$ & $0.374715909091$ & $0.846153846154$ \\
+\hline
+Accuracy & Linear & $0.7571$ & $0.6571$ & $0.8432$ \\
+Accuracy & RBF & $0.7571$ & $0.6571$ & $0.8432$ \\
+f1\_score & Linear & $0.8247$ & $0.7368$ & $0.9020$ \\
+f1\_score & RBF & $0.8283$ & $0.7391$ & $0.9027$ \\
+auroc & Linear & $0.8101$ & $0.6910$ & $0.9157$ \\
+auroc & RBF & $0.8204$ & $0.6959$ & $0.9212$ \\
+precision & Linear & $0.8696$ & $0.7674$ & $0.9574$ \\
+precision & RBF & $0.8542$ & $0.7556$ & $0.9535$ \\
+sensitivity & Linear & $0.7843$ & $0.6667$ & $0.8800$ \\
+sensitivity & RBF & $0.8039$ & $0.6923$ & $0.9074$ \\
+specificity & Linear & $0.6842$ & $0.4614$ & $0.8889$ \\
+specificity & RBF & $0.6316$ & $0.3747$ & $0.8462$ \\
 \hline
 \end{tabular} \\
 \end{enumerate}
+\item Explanation \\
 \end{enumerate}
 
 
