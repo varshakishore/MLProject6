@@ -1,4 +1,11 @@
 """
+Author      : Savannah Baron and Varsha Kishore
+Class       : HMC CS 158
+Date        : 2017 March 7
+Description : Project 6
+"""
+
+"""
 Author      : Yi-Chieh Wu
 Class       : HMC CS 158
 Date        : 2017 Feb 13
@@ -375,29 +382,18 @@ def select_param_rbf(X, y, kf, metric="accuracy"):
 
 def shorterParamSelect(metric_list):
     """
-    Sweeps different settings for the hyperparameters of an RBF-kernel SVM,
+    Sweeps different settings for the hyperparameters of an SVM
     calculating the k-fold CV performance for each setting, then selecting the
     hyperparameters that 'maximize' the average k-fold CV performance.
     
     Parameters
     --------------------
-        X       -- numpy array of shape (n,d), feature vectors
-                     n = number of examples
-                     d = number of features
-        y       -- numpy array of shape (n,), binary labels {1,-1}
-        kf     -- cross_validation.KFold or cross_validation.StratifiedKFold
-        metric  -- string, option used to select performance measure
+        metric_list       -- list of metrics to try
     
     Returns
     --------------------
-        gamma, C -- tuple of floats, optimal parameter values for an RBF-kernel SVM
+        Nothing
     """
-    metric = "accuracy"
-    
-    print 'RBF SVM Hyperparameter Selection based on ' + str(metric) + ':'
-    
-    ### ========== TODO : START ========== ###
-    # part 3b: create grid, then select optimal hyperparameters using cross-validation
 
     tweetList = [] 
                         
@@ -409,20 +405,23 @@ def shorterParamSelect(metric_list):
     CList = [10.0, 100.0, 1000.0, 10000.0]
     gammaList = [0.0001, 0.001, 0.01]
 
-    # cv = CountVectorizer(max_features=500)
-    # cv.fit(tweetList)
-    # dtm = cv.transform(tweetList)
-    # dtm, y = shuffle(dtm, yBase, random_state=0)
-    # dtm_train, dtm_test = dtm[:560], dtm[560:]
-    # y_train, y_test = y[:560], y[560:]
-    # kf = StratifiedKFold(y_train, 5)
-    # clf = SVC(C=10., gamma=0.001, kernel="rbf")
-    # clf.fit(dtm_train, y_train)
-    # for metric in metric_list:
-    #     print "Metric: " + metric
-    #     print cv_performance(clf, dtm_train, y_train, kf, metric=metric)
-    #     print performance_CI(clf, dtm_test, y_test, metric=metric)
+    # Search over what was found to be the best for accuracy
+    # For each comparison metric
+    cv = CountVectorizer(max_features=500)
+    cv.fit(tweetList)
+    dtm = cv.transform(tweetList)
+    dtm, y = shuffle(dtm, yBase, random_state=0)
+    dtm_train, dtm_test = dtm[:560], dtm[560:]
+    y_train, y_test = y[:560], y[560:]
+    kf = StratifiedKFold(y_train, 5)
+    clf = SVC(C=10., gamma=0.001, kernel="rbf")
+    clf.fit(dtm_train, y_train)
+    for metric in metric_list:
+        print "Metric: " + metric
+        print cv_performance(clf, dtm_train, y_train, kf, metric=metric)
+        print performance_CI(clf, dtm_test, y_test, metric=metric)
 
+    # Search over all parameters
     bestC = 0
     bestGamma = 0
     bestFeat = 0
@@ -461,7 +460,6 @@ def shorterParamSelect(metric_list):
                                 print "Kernel: " + str(bestKernel)
                                 print "Transform: " + str(bestTransform)
     print "Performance for " + str(metric) + " is " + str(bestPerf)
-    return bestGamma, bestC
 
 
 def performance_CI(clf, X, y, metric="accuracy"):
@@ -515,9 +513,6 @@ def performance_CI(clf, X, y, metric="accuracy"):
 ######################################################################
  
 def main() :
-    metric_list = ["accuracy", "f1_score", "auroc", "precision", "sensitivity", "specificity"]
-    shorterParamSelect(metric_list)
-    exit()
     # read the tweets and its labels
     dictionary = extract_dictionary('../data/tweets.txt')
     test_extract_dictionary(dictionary)
@@ -546,21 +541,21 @@ def main() :
     # part 2d: for each metric, select optimal hyperparameter for linear-kernel SVM using CV
     print "Performance across models and C values is..."
     perf = []
-    # for c in 10.0 ** np.arange(-3, 3):
-    # 	innerPerf = []
-    # 	for metric in metric_list:
-    # 		clf = SVC(C=c, kernel="linear")
-    # 		innerPerf.append(round(cv_performance(clf, X_train, y_train, kf, metric), 4))
-    # 	perf.append(innerPerf)
-    # 	print innerPerf
-    # print np.max(np.asarray(perf), axis=0)
+    for c in 10.0 ** np.arange(-3, 3):
+    	innerPerf = []
+    	for metric in metric_list:
+    		clf = SVC(C=c, kernel="linear")
+    		innerPerf.append(round(cv_performance(clf, X_train, y_train, kf, metric), 4))
+    	perf.append(innerPerf)
+    	print innerPerf
+    print np.max(np.asarray(perf), axis=0)
     
     # part 3c: for each metric, select optimal hyperparameter for RBF-SVM using CV
     print "Performance across models and C values is..."
-    # perf = []
-    # for metric in metric_list:
-    #     gamma, c = select_param_rbf(X_train, y_train, kf, metric=metric)
-    #     print "Metric: " + str(metric) + " gamma: " + str(gamma) + " c " + str(c)
+    perf = []
+    for metric in metric_list:
+        gamma, c = select_param_rbf(X_train, y_train, kf, metric=metric)
+        print "Metric: " + str(metric) + " gamma: " + str(gamma) + " c " + str(c)
 
     
     # part 4a: train linear- and RBF-kernel SVMs with selected hyperparameters
@@ -573,12 +568,12 @@ def main() :
     rbfClf.fit(X_train, y_train)
     
     # part 4c: use bootstrapping to report performance on test data
-    # for metric in metric_list:
-    #     score1, lower1, upper1 = performance_CI(linClf, X_test, y_test, metric=metric)
-    #     score2, lower2, upper2 = performance_CI(rbfClf, X_test, y_test, metric=metric)
-    #     print "Metric: " + str(metric)
-    #     print "Linear: Score: " + str(score1) + " lower: " + str(lower1) + " upper: " + str(upper1)
-    #     print "RBF: Score: " + str(score2) + " lower: " + str(lower2) + " upper: " + str(upper2)
+    for metric in metric_list:
+        score1, lower1, upper1 = performance_CI(linClf, X_test, y_test, metric=metric)
+        score2, lower2, upper2 = performance_CI(rbfClf, X_test, y_test, metric=metric)
+        print "Metric: " + str(metric)
+        print "Linear: Score: " + str(score1) + " lower: " + str(lower1) + " upper: " + str(upper1)
+        print "RBF: Score: " + str(score2) + " lower: " + str(lower2) + " upper: " + str(upper2)
     
     ### ========== TODO : END ========== ###
     
@@ -587,49 +582,55 @@ def main() :
     # uncomment out the following, and be sure to change the filename
 
     # Learning curve plot
-    # n, d = np.shape(X_train)
-    # perf = []
-    # perfTrain = []
-    # percentage = []
-    # for i in xrange(10, 81, 10):
-    # 	percentage.append(i)
-    # 	linClf = SVC(C=1, kernel="linear")
-    # 	linClf.fit(X_train[:int((i/100.0)*n)], y_train[:int((i/100.0)*n)])
-    # 	y_true = y_train[int((i/100.0)*n):]
-    # 	y_pred = linClf.decision_function(X_train[int((i/100.0)*n):])
-    # 	perf.append(1-performance(y_true, y_pred, "accuracy"))
-    # 	y_test = y_train[:int((i/100.0)*n)]
-    # 	y_pred = linClf.decision_function(X_train[:int((i/100.0)*n)])
-    # 	perfTrain.append(1-performance(y_test, y_pred, "accuracy"))
-    # matplotlib.pyplot.plot(np.asarray(percentage), np.asarray(perf), 
-    #     c='b', label='Test Error')
-    # matplotlib.pyplot.plot(np.asarray(percentage), np.asarray(perfTrain), 
-    #     c='g', label='Train Error')
-    # plt.autoscale(enable=True)
-    # plt.xlabel('percentage data')
-    # plt.ylabel('error')
-    # plt.legend(loc=1,prop={'size':8})
-    # plt.show()
+    n, d = np.shape(X_train)
+    perf = []
+    perfTrain = []
+    percentage = []
+    for i in xrange(10, 81, 10):
+    	percentage.append(i)
+    	linClf = SVC(C=1, kernel="linear")
+    	linClf.fit(X_train[:int((i/100.0)*n)], y_train[:int((i/100.0)*n)])
+    	y_true = y_train[int((i/100.0)*n):]
+    	y_pred = linClf.decision_function(X_train[int((i/100.0)*n):])
+    	perf.append(1-performance(y_true, y_pred, "accuracy"))
+    	y_test = y_train[:int((i/100.0)*n)]
+    	y_pred = linClf.decision_function(X_train[:int((i/100.0)*n)])
+    	perfTrain.append(1-performance(y_test, y_pred, "accuracy"))
+    matplotlib.pyplot.plot(np.asarray(percentage), np.asarray(perf), 
+        c='b', label='Test Error')
+    matplotlib.pyplot.plot(np.asarray(percentage), np.asarray(perfTrain), 
+        c='g', label='Train Error')
+    plt.autoscale(enable=True)
+    plt.xlabel('percentage data')
+    plt.ylabel('error')
+    plt.legend(loc=1,prop={'size':8})
+    plt.show()
 
-    X_held = extract_feature_vectors('../data/held_out_tweets.txt', dictionary)
-    clf = SVC(C=100.0, gamma=0.01, kernel="linear")
-    cv = CountVectorizer(max_features=500)
+    # Code used to find good parameters - see function above
+    shorterParamSelect(metric_list)
+
+    # Read file into list of tweets
     tweetList = [] 
-    
     with open('../data/tweets.txt', 'rU') as fid :
         for  line in fid:
-	        tweetList.append(line)
+            tweetList.append(line)
+
+    cv = CountVectorizer(max_features=500)
     cv.fit(tweetList)
     dtm = cv.transform(tweetList)
     y = read_vector_file('../data/labels.txt')
     dtm, y = shuffle(dtm, y, random_state=0)
-    dtm_train, dtm_test = dtm[:560], dtm[560:]
-    y_train, y_test = y[:560], y[560:]
-    kf = StratifiedKFold(y_train, 5)
+    clf = SVC(C=10.0, gamma=0.001, kernel="rbf")
+    clf.fit(dtm, y)
 
-    print "performance", cv_performance(clf, dtm_train, y_train, kf, metric='accuracy')
-    # your code here
-    #write_label_answer(y_pred, '../data/yjw_twitter.txt')
+    # Bring in held out tweet data
+    heldOutTweetList = []
+    with open('../data/held_out_tweets.txt', 'rU') as fid :
+        for  line in fid:
+            heldOutTweetList.append(line)
+    heldOutDTM = cv.transform(heldOutTweetList)
+    y_pred = clf.decision_function(heldOutDTM)
+    write_label_answer(y_pred, '../data/sbaron_vkishore_twitter.txt')
     ### ========== TODO : END ========== ###
     
 

@@ -106,9 +106,7 @@ specificity & RBF & $0.6316$ & $0.3747$ & $0.8462$ \\
 We have a set of tweets that consist of both positive and negative movie review tweets. We are looking at word choices used in positive and negative tweets. Based on this, we can then automatically predict whether any other tweet is positive or negative depending on what words are in it. \\
 Imagine we have two twitter users- one who likes all the movies and uses a lot of emoji's and another who hates all the movies and does not use emoji's. Then, we could incorrectly say that having a lot of emoji's is a positive movie review tweet. This is incorrect. In order to prevent this we should not give too much importance to the emoji's. So, we ran experiments to find out how much importance we need to give to different word choices. 
 \item Contest\\
-First, we wanted to see whether we were in high bias or high variance, in order to know what sorts of changes
-would be best to pursue. We created a learning curve of how much data was used in the training set versus
-the train and test errors.
+First, we wanted to see whether we were in high bias or high variance, in order to know what sorts of improvements would be best to pursue. We created a learning curve of how much data was used in the training set versus the train and test errors.
 
 \includegraphics[scale=0.7]{learningcurve}
 
@@ -122,7 +120,7 @@ and $\gamma$ values as before. However, we also considered three further changes
 first was limiting the words used to the top $k$ most common, where $k$ was varied between 100 and the whole
 set of vocab (about 1800 words). The second was removing English stop words, very common words that don't add much meaning. The third was using a TF-IDF transformer, also to try to decrease the importance of frequent but meaningless words. We used ScikitLearn's CountVectorizer and TfidfVectorizer to create our document term matrices using these parameters. 
 
-We ran tests \texttt{performance\_CI} written in a previous part on features and classifiers created with each combination of these parameters, and picked based on the highest accuracy score. We consistently found that limiting the number of features had a positive effect, but stop words and Tfidf had a negative one. My guess would be that this is because twitter users, with the character constraint, may use less meaningless common words than traditional language. In the end, our best model was as follows:
+We ran tests using \texttt{performance\_CI} written in a previous part on features and classifiers created with each combination of these parameters, and picked based on the highest accuracy score. We consistently found that limiting the number of features had a positive effect, but stop words and Tfidf had either negative or no effects one. We guess would be that this is because twitter users, with the character constraint, may use less meaningless common words than traditional language. In the end, our best model was as follows:
 \\$C=10.0$
 \\$\gamma = 0.001$
 \\Number of Features = 500
@@ -143,7 +141,7 @@ specificity & $0.6316$ & $0.4167$ & $0.8500$ \\
 \end{tabular}
 
 When we compare this to our earlier results without feature selection, we see that it is better for all metrics
-except for specificity, which is slightly lower than our best. This is likely because specificity is incredibly high. 
+except for specificity, where is slightly lower than our best. This is likely because specificity is incredibly high. However, it still performs reasonably well, and the scores are high enough overall that we are happy. 
 
 \end{enumerate}
 
