@@ -515,9 +515,9 @@ def performance_CI(clf, X, y, metric="accuracy"):
 ######################################################################
  
 def main() :
-    metric_list = ["accuracy", "f1_score", "auroc", "precision", "sensitivity", "specificity"]
-    shorterParamSelect(metric_list)
-    exit()
+    # metric_list = ["accuracy", "f1_score", "auroc", "precision", "sensitivity", "specificity"]
+    # shorterParamSelect(metric_list)
+    # exit()
     # read the tweets and its labels
     dictionary = extract_dictionary('../data/tweets.txt')
     test_extract_dictionary(dictionary)
@@ -545,7 +545,7 @@ def main() :
     
     # part 2d: for each metric, select optimal hyperparameter for linear-kernel SVM using CV
     print "Performance across models and C values is..."
-    perf = []
+    # perf = []
     # for c in 10.0 ** np.arange(-3, 3):
     # 	innerPerf = []
     # 	for metric in metric_list:
@@ -557,10 +557,10 @@ def main() :
     
     # part 3c: for each metric, select optimal hyperparameter for RBF-SVM using CV
     print "Performance across models and C values is..."
-    # perf = []
-    # for metric in metric_list:
-    #     gamma, c = select_param_rbf(X_train, y_train, kf, metric=metric)
-    #     print "Metric: " + str(metric) + " gamma: " + str(gamma) + " c " + str(c)
+    perf = []
+    for metric in metric_list:
+        gamma, c = select_param_rbf(X_train, y_train, kf, metric=metric)
+        print "Metric: " + str(metric) + " gamma: " + str(gamma) + " c " + str(c)
 
     
     # part 4a: train linear- and RBF-kernel SVMs with selected hyperparameters

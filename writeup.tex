@@ -52,7 +52,8 @@ training in terms of ratio of majority to minority.
   \hline
   Best C & 1 & 1 & 1 & 1 & 0.001 & 1 \\
   \hline  
-\end{tabular}
+\end{tabular}\\ \\
+From our table, we see that the best $C$ value is $1$ for all metrics except for sensitivity. A $C$ values of $0.001$ gives us the best sensitivity score. We also see that as we increase the $C$ value the scores for all the metrics except sensitivity increases until we reach best $C$ and then the scores decrease as expected. 
 
 \end{enumerate}
 \item Hyperparameter Selection for RBF Kernel SVM
@@ -62,7 +63,7 @@ increases, regularization decreases. This means that if we are in high bias, inc
 increase generalization. If we are in high variance, decreasing $\gamma$ will increase generalization. 
 \item We chose $C$ to range from 0.001 to $10^6$. We used high $C$ values for low regularization, and 
 low values for high regularization, in order to cover all possibilities that our model might need. We chose
-the same range for gamma for the same reasons. 
+the same range for gamma for the same reasons. We increased the values of $C$ and $\gamma$ by a factor of $10$ for every iteration. The range of values we are considering is quite large. Therefore, we increase on a logarithmic scale, to allow us to look at a large range of values without having to do a very large number of iterations. 
 \item Table 2- best setting for $C$ and $\gamma$ using RBF SVM: \\
 
 \begin{tabular}{| l | c | c | c |}
@@ -76,7 +77,8 @@ Precision & 0.8684 & 0.01 & 100.0 \\
 Sensitivy & 1.0000 & 0.001 & 0.001 \\
 Specificity & 0.7359 & 0.01 & 100.0 \\
 \hline
-\end{tabular}
+\end{tabular} \\ \\
+We see that for all metrics except sensitivity, the best $C$ is $100$ and the best $\gamma$ is $0.001$. 
 \end{enumerate}
 \item Test Set Performance
 \begin{enumerate}[(a)]
@@ -100,11 +102,12 @@ sensitivity & RBF & $0.8039$ & $0.6923$ & $0.9074$ \\
 specificity & Linear & $0.6842$ & $0.4614$ & $0.8889$ \\
 specificity & RBF & $0.6316$ & $0.3747$ & $0.8462$ \\
 \hline
-\end{tabular} \\
+\end{tabular} \\ \\
+W see that the linear and RBF classifier perform equally well when we use the accuracy metric. RBF classifier also perform slightly between when using F1-score, auroc and sensitivity metrics. The linear classifier performs better with the precision and specificity metrics. 
 \end{enumerate}
 \item Explanation \\
-We have a set of tweets that consist of both positive and negative movie review tweets. We are looking at word choices used in positive and negative tweets. Based on this, we can then automatically predict whether any other tweet is positive or negative depending on what words are in it. \\
-Imagine we have two twitter users- one who likes all the movies and uses a lot of emoji's and another who hates all the movies and does not use emoji's. Then, we could incorrectly say that having a lot of emoji's is a positive movie review tweet. This is incorrect. In order to prevent this we should not give too much importance to the emoji's. So, we ran experiments to find out how much importance we need to give to different word choices. 
+We have a set of tweets that consist of both positive and negative movie review tweets. We are trying to use these tweets to predict whether future tweets will be positive or negative. In order to do so, we are looking at word choices used in positive and negative tweets. Based on this, we can then automatically predict whether any other tweet is positive or negative depending on what words are in it. \\
+We ran different experiments to find the best method of making predictions. Imagine we have two twitter users- one who likes all the movies and uses a lot of emoji's and another who hates all the movies and does not use emoji's. Then, we could incorrectly say that having a lot of emoji's is a positive movie review tweet. This is incorrect. In order to prevent this we should not give too much importance to the emoji's. So, we ran experiments to find out how much importance we need to give to different word choices. \\
 We also ran experiments to see if we predicted positive and negative tweets better when we considered groups of words used in a tweet as opposed to just considering which words were used. In many of our performance tests, we saw that considering groups of words used in a tweet was advantageous. 
 \item Extra Credit: Contest
 \item Contest\\
@@ -147,7 +150,6 @@ specificity & $0.6316$ & $0.4167$ & $0.8500$ \\
 When we compare this to our earlier results without feature selection, we see that it is better for all metrics
 except for specificity, which is slightly lower than our best. This is likely because specificity is incredibly high. 
 
->>>>>>> 2b079a95c0026006fac442d7a6bca6c2d7e883a9
 \end{enumerate}
 
 
