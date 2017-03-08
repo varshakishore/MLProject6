@@ -107,6 +107,47 @@ We have a set of tweets that consist of both positive and negative movie review 
 Imagine we have two twitter users- one who likes all the movies and uses a lot of emoji's and another who hates all the movies and does not use emoji's. Then, we could incorrectly say that having a lot of emoji's is a positive movie review tweet. This is incorrect. In order to prevent this we should not give too much importance to the emoji's. So, we ran experiments to find out how much importance we need to give to different word choices. 
 We also ran experiments to see if we predicted positive and negative tweets better when we considered groups of words used in a tweet as opposed to just considering which words were used. In many of our performance tests, we saw that considering groups of words used in a tweet was advantageous. 
 \item Extra Credit: Contest
+\item Contest\\
+First, we wanted to see whether we were in high bias or high variance, in order to know what sorts of changes
+would be best to pursue. We created a learning curve of how much data was used in the training set versus
+the train and test errors.
+
+\includegraphics[scale=0.7]{learningcurve}
+
+Note that the training set error is always at 0.0, presumably because it is linearly separable and thus can be 
+perfectly fit. The large separation between the train and test sets tells us that we are in high variance, and 
+thus want to decrease our hypothesis space and/or increase regularization.
+
+So, we did a sweep of parameters to see how various different changes would perform. We looked at 
+both RBF and linear kernels (linear would be better for high variance, but, experimenting with decreasing the number of features, it seemed possible we might get to a place where RBF performed well again), and $c$
+and $\gamma$ values as before. However, we also considered three further changes to our features. The 
+first was limiting the words used to the top $k$ most common, where $k$ was varied between 100 and the whole
+set of vocab (about 1800 words). The second was removing English stop words, very common words that don't add much meaning. The third was using a TF-IDF transformer, also to try to decrease the importance of frequent but meaningless words. We used ScikitLearn's CountVectorizer and TfidfVectorizer to create our document term matrices using these parameters. 
+
+We ran tests \texttt{performance\_CI} written in a previous part on features and classifiers created with each combination of these parameters, and picked based on the highest accuracy score. We consistently found that limiting the number of features had a positive effect, but stop words and Tfidf had a negative one. My guess would be that this is because twitter users, with the character constraint, may use less meaningless common words than traditional language. In the end, our best model was as follows:
+\\$C=10.0$
+\\$\gamma = 0.001$
+\\Number of Features = 500
+\\Kernel = RBF
+\\ Tfidf used = False
+
+\begin{tabular}{| c | c | c | c |}
+\hline
+Metric & Score & Lower & Upper \\
+\hline
+Accuracy & $0.8571$ & $0.7714$ & $0.9286$ \\
+F1-score & $0.9057$ & $0.8431$ & $0.9630$ \\
+auroc & $0.8287$ & $0.6678$ & $0.9501$ \\
+precision & $0.8727$ & $0.7777$ & $0.9536$ \\
+sensitivity & $0.9412$ & $0.875$ & $1.0$ \\
+specificity & $0.6316$ & $0.4167$ & $0.8500$ \\
+\hline
+\end{tabular}
+
+When we compare this to our earlier results without feature selection, we see that it is better for all metrics
+except for specificity, which is slightly lower than our best. This is likely because specificity is incredibly high. 
+
+>>>>>>> 2b079a95c0026006fac442d7a6bca6c2d7e883a9
 \end{enumerate}
 
 
